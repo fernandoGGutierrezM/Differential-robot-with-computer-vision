@@ -2,22 +2,16 @@ import cv2
 import numpy as np
 
 def detect_circles(image, color_mask, color_name, detected_colors):
-    # Convert image to grayscale to enhance line detection
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # Apply median blur to reduce noise
+    blurred = cv2.medianBlur(color_mask, 5)
 
-    # Apply median blur to reduce noise in the grayscale image
-    gray_blurred = cv2.medianBlur(gray, 5)
-
-    # Apply Canny edge detector on the blurred grayscale image
-    edged = cv2.Canny(gray_blurred, 75, 250)
+    # Apply Canny edge detector
+    edged = cv2.Canny(blurred, 75, 250)
 
     # Applying Hough Circle Transform
     circles = cv2.HoughCircles(edged, cv2.HOUGH_GRADIENT, 1, 20, param1=50, param2=30, minRadius=0, maxRadius=50)
     if circles is not None:
         circles = np.uint16(np.around(circles))
-        # Filter to keep only the largest circle if more than three are found
-        if len(circles[0, :]) > 3:
-            circles = [max(circles[0, :], key=lambda x: x[2])]
         detected_colors[color_name] += len(circles[0, :])
         for i in circles[0, :]:
             # Draw the outer circle
@@ -33,12 +27,12 @@ def main():
         if not ret:
             break
 
-        # Convert to HSV color space for color masking
+        # Convert to HSV color space
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         detected_colors = {'red': 0, 'yellow': 0, 'green': 0}
 
         # Define color ranges and apply mask
-        # Red color
+        # Red color  0 0 153  255 153 153
         lower_red = np.array([136, 87, 111]) 
         upper_red = np.array([180, 255, 255])
         mask_red = cv2.inRange(hsv, lower_red, upper_red)
