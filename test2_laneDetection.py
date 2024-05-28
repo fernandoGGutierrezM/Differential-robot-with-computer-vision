@@ -22,8 +22,8 @@ while (True):
     image = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
     gray_raw_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     #print(gray_raw_image[5][2])
-    #gray_vertical_flip = cv2.flip(gray_raw_image, 1)
-    #gray_flip_repaired = cv2.flip(gray_vertical_flip, 0)
+    gray_vertical_flip = cv2.flip(gray_raw_image, 1)
+    gray_flip_repaired = cv2.flip(gray_vertical_flip, 0)
      
     #       y0
     #       |
@@ -31,8 +31,8 @@ while (True):
     #       |
     #       yf
 
-    ret, thresh = cv2.threshold(gray_raw_image, 127, 255, 0)
-    crop = thresh[0:478,200:650]   #crop the image to only see the line (y0,y1,x0,x1)
+    ret, thresh = cv2.threshold(gray_flip_repaired, 127, 255, 0)
+    crop = thresh[200:478,0:650]   #crop the image to only see the line (y0,y1,x0,x1)
     #smooth_image = cv2.GaussianBlur(thresh, (5,7), 3)
     dst = cv2.Canny(crop, 50, 200, None, 3)
     cdst = cv2.cvtColor(dst, cv2.COLOR_GRAY2BGR)

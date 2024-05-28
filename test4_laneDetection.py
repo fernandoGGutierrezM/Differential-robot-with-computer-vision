@@ -6,7 +6,7 @@ import time
 import math
 import matplotlib.pyplot as plt
 
-video_path = 'mp4TestLaneDetection2.mp4'
+video_path = 'mp4TestLaneDetection1.mp4'
 
 cap  = cv2.VideoCapture(video_path)
 
@@ -25,9 +25,11 @@ filteredInfo7 = [] #index 4
 
 
 meanArr = [] #array for all of the means at the moment
-
+arrayx1 = []
 setPoint = 225 #set point that is the center of the camera, calculated below with the crop info
 while (True):
+    time.sleep(0.1)
+    
     ret, frame = cap.read()
     if not ret:
         print("valio orto")
@@ -44,8 +46,10 @@ while (True):
     cdst = cv2.cvtColor(dst, cv2.COLOR_GRAY2BGR)
     cdstP = np.copy(cdst)
     linesP = cv2.HoughLinesP(dst, 1, np.pi/90, 50, None, 50, 10) #lines p returns an array with x1,y1,x2,y2
-
+    
     arrayx1 = linesP[:,0,0]
+    if (len(arrayx1)==0):
+        print("ETO TA VACIO PAPI")
     meanval = np.mean(arrayx1) #the mean of the points at x axis
     #print(meanval)
     meanArr.append(meanval)
@@ -58,7 +62,7 @@ while (True):
     lastMeans[0] = meanval
 
     timeArr = list(range(0, len(lastMeans)))  
-    regression = np.poly1d(np.polyfit(timeArr, lastMeans, 3))
+    regression = np.poly1d(np.polyfit(timeArr, lastMeans, 1))
     #print(regression(1))
     filteredInfo.append(regression(1)) #append info to the "filtered info"
     filteredInfo2.append(regression(1.5))
@@ -68,10 +72,12 @@ while (True):
     filteredInfo6.append(regression(3.5))
     filteredInfo7.append(regression(4))
 
+    
     #draw the set point at that time 
-    cv2.line(cdstP, (int(regression(2.5)), 0), (int(regression(2.5)), 400), (0,0,255), 3, cv2.LINE_AA)
-    error = setPoint-regression(2.5)
-    print(error)
+    cv2.line(cdstP, (int(regression(2)), 0), (int(regression(2)), 400), (0,0,255), 3, cv2.LINE_AA)
+    error = setPoint-regression(2)
+    print(len(arrayx1))
+    #print(error)
     #print the error 
     #time.sleep(0.25)
 

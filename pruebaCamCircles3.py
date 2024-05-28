@@ -44,7 +44,7 @@ def detect_traffic_light_color(frame):
 
 def main():
     # Start capturing video from the webcam
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
 
     while True:
         ret, frame = cap.read()
