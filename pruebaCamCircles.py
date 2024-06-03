@@ -33,16 +33,22 @@ def main():
 
         # Define color ranges and apply mask
         # Red color  0 0 153  255 153 153
+        #lower_red = np.array([136, 87, 111]) 
+        #upper_red = np.array([180, 255, 255])
         lower_red = np.array([136, 87, 111]) 
         upper_red = np.array([180, 255, 255])
         mask_red = cv2.inRange(hsv, lower_red, upper_red)
 
         # Yellow color
+        #lower_yellow = np.array([20, 100, 100])
+        #upper_yellow = np.array([30, 255, 255])
         lower_yellow = np.array([20, 100, 100])
         upper_yellow = np.array([30, 255, 255])
         mask_yellow = cv2.inRange(hsv, lower_yellow, upper_yellow)
 
         # Green color
+        #lower_green = np.array([0, 100, 0])
+        #upper_green = np.array([150, 255, 178])
         lower_green = np.array([0, 100, 0])
         upper_green = np.array([150, 255, 178])
         mask_green = cv2.inRange(hsv, lower_green, upper_green)

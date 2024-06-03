@@ -7,12 +7,14 @@ def detect_traffic_light_color(frame):
     rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     
     # Define color ranges in RGB
-    red_lower = np.array([120, 0, 0])
-    red_upper = np.array([255, 80, 80])
-    green_lower = np.array([0, 120, 0])
-    green_upper = np.array([80, 255, 80])
-    yellow_lower = np.array([120, 120, 0])
-    yellow_upper = np.array([255, 255, 80])
+    red_lower = np.array([67, 60, 71])
+    red_upper = np.array([96, 91, 83])
+
+    green_lower = np.array([72, 47, 56])
+    green_upper = np.array([115, 77, 68])
+    
+    yellow_lower = np.array([60, 54, 57])
+    yellow_upper = np.array([96, 88, 72])
 
 #    red_lower = np.array([136, 87, 111])
 #    red_upper = np.array([180, 255, 255])
@@ -51,12 +53,42 @@ def main():
         if not ret:
             break
         
+        (B, G, R) = cv2.split(frame)
+
+        alowB = B.min()
+        ahighB = B.max()
+        alowG = G.min()
+        ahighG = G.max()
+        alowR = R.min()
+        ahighR = R.max()
+
+        amaxB = 200
+        aminB = 0
+        amaxG = 200
+        aminG = 0
+        amaxR = 200
+        aminR = 0
+
+        alphaB = ((amaxB-aminB)/(ahighB-alowB))
+        betaB = aminB - alowB * alphaB
+        
+        alphaG = ((amaxG-aminG)/(ahighG-alowG))
+        betaG = aminG - alowG * alphaG
+        
+        alphaR = ((amaxR-aminR)/(ahighR-alowR))
+        betaR = aminR - alowR * alphaR
+
+        brightImageB = cv2.convertScaleAbs(frame[:,:,0], alpha=alphaB, beta=betaB)
+        brightImageG = cv2.convertScaleAbs(frame[:,:,1], alpha=alphaG, beta=betaG)
+        brightImageR = cv2.convertScaleAbs(frame[:,:,2], alpha=alphaR, beta=betaR)
+        modImage = cv2.merge([brightImageB, brightImageG, brightImageR])
+
         # Detect the color of the traffic light
-        traffic_light_color = detect_traffic_light_color(frame)
+        traffic_light_color = detect_traffic_light_color(modImage)
         print(f"Detected Traffic Light Color: {traffic_light_color}")
 
         # Display the frame
-        cv2.imshow('Traffic Light Detection', frame)
+        cv2.imshow('Traffic Light Detection', modImage)
 
         # Break the loop when 'q' is pressed
         if cv2.waitKey(1) & 0xFF == ord('q'):
