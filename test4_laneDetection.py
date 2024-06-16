@@ -93,6 +93,7 @@ plt.plot(meanArr)
 #plt.plot(filteredInfo, label = 'index 1')
 #plt.plot(filteredInfo2, label = 'index 1.5')
 #plt.plot(filteredInfo3, label = 'index 2')
+
 plt.plot(filteredInfo4, label = 'index 2.5')
 plt.plot(filteredInfo5, label = 'index 3')
 plt.plot(filteredInfo6, label = 'index 3.5')

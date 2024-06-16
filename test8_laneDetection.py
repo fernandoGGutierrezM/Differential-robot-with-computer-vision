@@ -8,13 +8,13 @@ import time
 import math
 import matplotlib.pyplot as plt
 
-video_path = 'mp4TestLaneDetection5.mp4'
+video_path = 'mp4TestLaneDetection4.mp4'
 
 cap  = cv2.VideoCapture(video_path)
 
 count = 0
-#FALTA CALCULAR OFFSET O ERROR COMO SEA XD JAJA ODIO FUZZY LOGIC
 lastMeans = [0, 0, 0, 0, 0]
+lastMeansh = [0,0,0,0,0]
 
 #temporary arrays for comparing the reuslts of the "filter"
 filteredInfo = [] #array for the filtered data index 1
@@ -27,6 +27,7 @@ filteredInfo7 = [] #index 4
 
 #array for all of the means at the moment
 meanArr = [] 
+meanArr2 = []
 
 #set point that is the center of the camera, calculated below with the crop info
 setPoint = 225
@@ -42,7 +43,8 @@ while (True):
     #cvtColor is the method to convert the frames extracted to another color space 
     #Its parameters here are src (the frame it receives) and the color space conversion code (in this case to BGR)
     #The method will return the frame converted in the specified color space
-    image = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+    image1 = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+    image = cv2.rotate(image1, cv2.ROTATE_180)
     
     #brightImage = cv2.addWeighted(frame, -2, np.zeros(frame.shape, frame.dtype), 0, 1)
     alow = image.min()
@@ -81,8 +83,9 @@ while (True):
     #blur is the method to smooth the image by averaging the pixel values in a neighborhood defined by a kernel
     #Its paremeters are src (the input image) and k size (size of the kernel)
     #The method will return the blurred image
-    blurred = cv2.blur(gray_raw_image, (5,7))
-    crop = blurred[400:720, 300:980]
+    blurred = cv2.blur(gray_raw_image, (5,21))
+    #blured2 = cv2.rotate(blurred, cv2.ROTATE_180)
+    crop = blurred[400:720, 420:860]
     #threshold is the method to apply a fixed value thresholding to a grayscale image
     #Its parameters are src (input image), thresh (threshold value), maxval(the maximum value to use with) and the type of threshold applied (if set to 0, it will be the "THRESH_BINARY" type)
     #The method will return the thresholded image (IN THIS CASE THE BINARY OF THE THRESHOLDED IMAGE)
@@ -104,14 +107,32 @@ while (True):
     print(highThresh)
     dst = cv2.Canny(thresh, float(highThresh), float(lowThresh), None, 5)
     cdst = cv2.cvtColor(dst, cv2.COLOR_GRAY2BGR)
-
     cdstP = np.copy(cdst)
     
     #HoughLines is the method to detect lines in an edge image using the Hough Line Transform
     #Its parameters are image (the edge image), rho (the distance resolution of the accumulator in pixels), theta (the angle resolution of the accumulator in radians), and threshold (the accumulator threshold parameter. Only those lines are returned that get enough votes)
     #The method will return an output vector of lines
-    linesP = cv2.HoughLinesP(dst, 1, np.pi/180, 50, None, 50, 20) #lines p returns an array with x1,y1,x2,y2
-    cut = dst[150:320, 0:680]
+    
+    cut = dst[150:320, 0:440]
+    kernel = np.ones((2,4), np.uint8)
+    kernel2 = np.ones((1,16), np.uint8)
+    
+    #kernel3 = cv2.getStructuringElement(cv2.MORPH_RECT, (1,7))
+    #morfop = cv2.morphologyEx(cut, cv2.MORPH_OPEN, kernel3)
+    
+    #dilated = cv2.dilate(cut, kernel2, anchor=(0,0), iterations=2)
+    #eroded = cv2.erode(cut, kernel, iterations=1)
+    tophat = cv2.morphologyEx(cut, cv2.MORPH_TOPHAT, kernel2)
+    closing  = cv2.morphologyEx(tophat, cv2.MORPH_CLOSE, kernel) 
+    #closing = cv2.morphologyEx(cut, cv2.MORPH_CLOSE, kernel)
+    #erosion = cv2.erode(closing, kernel2, iterations=1)``````
+    #dilated = cv2.dilate(closing, kernel2, iterations=1) 
+    #tophat = cv2.morphologyEx(closing, cv2.MORPH_BLACKHAT, kernel2)
+    #opening = cv2.morphologyEx(cut, cv2.MORPH_OPEN, kernel2)
+    
+    linesP = cv2.HoughLinesP(closing, 1, np.pi/180, 50, None, 50, 10) #lines p returns an array with x1,y1,x2,y2
+    
+    
     arrayx1 = linesP[:,0,0]
     arrayx2 = linesP[:,0,2]
     arrayy1 = linesP[:,0,1]
@@ -130,9 +151,16 @@ while (True):
     lastMeans[2] = lastMeans[1]
     lastMeans[1] = lastMeans[0]
     lastMeans[0] = meanval
+    
+    lastMeansh[4] = lastMeansh[3]
+    lastMeansh[3] = lastMeansh[2]    
+    lastMeansh[2] = lastMeansh[1]
+    lastMeansh[1] = lastMeansh[0]
+    lastMeansh[0] = meanx2
 
     timeArr = list(range(0, len(lastMeans)))  
     regression = np.poly1d(np.polyfit(timeArr, lastMeans, 1))
+    regression2 = np.poly1d(np.polyfit(timeArr, lastMeansh, 1))
     #print(regression(1))
     filteredInfo.append(regression(1)) #append info to the "filtered info"
     filteredInfo2.append(regression(1.5))
@@ -145,21 +173,25 @@ while (True):
     slope = (meany2-meany1)/(meanx2-meanval)
     generalYmean = meany2+meany1/2
     y_coords, x_coords = np.where(dst == 255)  # Get the coordinates where the edges are white
-    yCannyMean = np.mean(y_coords)
+    yCannyMean = np.mean(x_coords)
     meanArr.append(yCannyMean)
     print("Slope: ", slope)
+
+    caribbeanBlue = (yCannyMean+regression(2))/2
     #draw the set point at that time 
-    #cv2.line(cdstP, (int(meanx2), 0), (int(meanval), 400), (0,0,255), 3, cv2.LINE_AA)
-    cv2.line(cdstP, (0, int(yCannyMean)), (400, int(yCannyMean)), (0,0,255), 3, cv2.LINE_AA)
-    cv2.line(cdstP, (0, int(generalYmean)), (400, int(generalYmean)), (0,255,0), 3, cv2.LINE_AA)
+    cv2.line(cdstP, (int(yCannyMean), 0), (int(yCannyMean), 400), (0,0,255), 3, cv2.LINE_AA)
+    cv2.line(cdstP, (int(regression(2)), 0), (int(regression(2)), 400), (0,255,0), 3, cv2.LINE_AA)
+    cv2.line(cdstP, (int(regression2(2)), 0), (int(regression2(2)), 400), (255,0,0), 3, cv2.LINE_AA)
+    #cv2.line(cdstP, (0, int(yCannyMean)), (400, int(yCannyMean)), (0,0,255), 3, cv2.LINE_AA)
+    #cv2.line(cdstP, (0, int(generalYmean)), (400, int(generalYmean)), (0,255,0), 3, cv2.LINE_AA)
     error = setPoint-regression(2)
     #print(regression(2))
     #print the error 
-    time.sleep(0.15)
+    time.sleep(0.05)
 
     cv2.imshow("normal", frame)
     cv2.imshow("modified bright", brightImage)
-    cv2.imshow("blur", thresh)
+    cv2.imshow("blur", closing)
     cv2.imshow("crop", crop)
     cv2.imshow("cut", cut)
     cv2.imshow("Probabilistic Houg  Transform", cdstP)
