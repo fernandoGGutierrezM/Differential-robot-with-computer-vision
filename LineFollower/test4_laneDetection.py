@@ -6,7 +6,7 @@ import time
 import math
 import matplotlib.pyplot as plt
 
-video_path = 'mp4TestLaneDetection1.mp4'
+video_path = 'footage/mp4TestLaneDetection1.mp4'
 
 cap  = cv2.VideoCapture(video_path)
 

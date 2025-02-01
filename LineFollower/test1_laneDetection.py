@@ -3,7 +3,7 @@ import numpy as np
 import time
 import math
 
-video_path = 'imgTestLaneDetection3.jpeg'
+video_path = 'footage/imgTestLaneDetection3.jpeg'
 
 gray_raw_image= cv2.imread(video_path, cv2.IMREAD_GRAYSCALE)
 gray_vertical_flip = cv2.flip(gray_raw_image, 1)
