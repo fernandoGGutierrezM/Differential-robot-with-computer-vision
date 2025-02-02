@@ -1,6 +1,9 @@
+#Open cv2 testing for an image (comparisson between grayscale,
+#color and smoothed image. Canny edge detection and Hough lines
+#testing)
+
 import cv2
 import numpy as np
-import time
 import math
 
 video_path = 'footage/imgTestLaneDetection3.jpeg'

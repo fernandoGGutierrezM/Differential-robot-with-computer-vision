@@ -1,3 +1,7 @@
+#opencv2 testing for video or image: Probabilistic hough
+#Transform, gaussian blur and a crop from gaussian blur
+#Display a graph of the results and a regession of them
+
 import cv2
 import numpy as np
 import time
