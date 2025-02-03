@@ -16,11 +16,18 @@ The folders from this repository are the following:
 This folder includes some footage used to develop the line detection algorithm, testing different morphological operations, filters and parameters for edge detection.
 It uses Canny edge detection and Hough Lines to calculate the position of the line on camera, based on the given feedback from the live feed of the camera then it uses a linear regression moving average filter. Finally this number is compared to a set point established when the robot was aligned with the black line to follow and that is how error was calculated.
 With this scripts it is possible to visualize the behavior of the line detection, which later needed some tunning because of the latency and refresh rate of the camera. 
+![Screenshot 2025-02-03 090411](https://github.com/user-attachments/assets/7c330f9e-362a-4a28-8bec-5990f00942c7)
 
-## TrafficSignalsDetection
-(For this feature the jetson nano was connected to a computer due to performance and latency issues)
-The signals to detect are:
--
+## TrafficSignalsDetection(For this feature the jetson nano was connected to a computer due to performance and latency issues)
+Signals to detect:
+- Stop
+- Men at work
+- Left
+- Right
+- Traffic light
+
+In this folder there are some scripts for the traffic light color detection, after some testing with both footage and on track testing it was determined that the best option was to include the semaphore color detection at the CNN along with the other traffic signals, still some of the testing scripts for the r,g,b histograms and circle detection are included in this folder.
+![Screenshot 2025-02-03 095445](https://github.com/user-attachments/assets/8fe9864b-ab46-43e1-b299-0abe1d0f2455)
 
 ## ROS_Scripts
 
